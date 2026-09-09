@@ -1,5 +1,5 @@
 # ==============================================================================
-# Cisco Historical Unused Port Scanner - Git Ignore Configuration
+# Cisco Layer 2 Switch Manager - Git Ignore Configuration
 # ==============================================================================
 
 # Byte-compiled / optimized / DLL files
@@ -14,13 +14,9 @@ __pycache__/
 *.pyd
 *.dll
 
-# Distribution / Packaging / Standalone Binaries
+# Distribution / packaging
 build/
 dist/
-release/*.exe
-release/*.zip
-*.exe
-*.zip
 downloads/
 eggs/
 .eggs/
@@ -39,8 +35,6 @@ MANIFEST
 
 # Virtual Environments
 .env
-*.env
-!.env.example
 .venv
 env/
 venv/
@@ -48,22 +42,18 @@ ENV/
 env.bak/
 venv.bak/
 
-# Local Application Data & Switch Inventory (Encrypted/Plain credentials & Excel history)
+# Local Application Data & Switch Inventory (Sensitive credentials)
 data/
 *.db
 *.sqlite
 *.sqlite3
-*.xlsx
-*.xls
-!examples/*.xlsx
-!examples/*.xls
 
-# Switch Configurations & Network Infrastructure Backups
+# Switch Configurations & Backups (Real network infrastructure configurations)
 backups/
 *.cfg
 *.conf
 
-# Logs and runtime files
+# Logs and runtime databases
 *.log
 logs/
 npm-debug.log*
@@ -81,7 +71,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 tests/test_devices.json
-tests/test_storage/
 tests/*.xlsx
 tests/*.csv
 
@@ -103,3 +92,9 @@ tests/*.csv
 ehthumbs.db
 Thumbs.db
 [Dd]esktop.ini
+
+# Sub-repositories and local workspace folders
+Cisco-Switch-Port-Unused-Scanner/
+Cisco-Switch-Management-Tool/
+release/
+

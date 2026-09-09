@@ -1,14 +1,11 @@
-# Cisco Historical Unused Port Scanner
+# Cisco Layer 2 Switch Manager (GUI)
 
-[![Release](https://img.shields.io/github/v/release/tdt111199/Cisco-Switch-Management-Tool?color=blue&label=Latest%20Release)](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 [![Code Style](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
 
-A complete, enterprise-grade Python GUI desktop application for tracking, auditing, and analyzing switch port usage history across Cisco switches over time. 
-
-**Zero SQLite or External Database** — Persistent storage is powered exclusively by a multi-sheet **Microsoft Excel (`port_history.xlsx`)** workbook with pre-write backups, atomic file replacement, and multi-criteria safety algorithms to reliably identify inactive ports and generate safe shutdown/rollback scripts without accidental network outages.
+A complete, modern desktop GUI application built in Python (CustomTkinter) for configuring, managing, backing up, and monitoring **Cisco Layer 2 Switches** (Cisco Catalyst / IOS / IOS-XE). The application supports concurrent multi-device batch automation, local credential encryption, automated safety backups before restore, and standalone Windows `.exe` deployment.
 
 ---
 
@@ -16,20 +13,13 @@ A complete, enterprise-grade Python GUI desktop application for tracking, auditi
 
 - [Project Overview](#-project-overview)
 - [Key Features](#-key-features)
-- [Architecture & Design](#-architecture--design)
-- [System Requirements](#-system-requirements)
+- [Architecture](#-architecture)
+- [Requirements](#-requirements)
 - [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [How to Build Standalone EXE](#-how-to-build-standalone-exe)
-- [Download Pre-Built Release](#-download-pre-built-release)
-- [Repository Structure](#-repository-structure)
-- [Historical Scan Mechanism via Excel](#-historical-scan-mechanism-via-excel)
-- [Multi-Criteria Inactive & UNUSED Classification](#-multi-criteria-inactive--unused-classification)
-- [Protected Ports Mechanism](#-protected-ports-mechanism)
-- [Safe Configuration & Rollback Generator](#-safe-configuration--rollback-generator)
-- [Safety Warnings & Operational Principles](#-safety-warnings--operational-principles)
-- [Visual Interface & Diagrams](#-visual-interface--diagrams)
-- [Development Roadmap](#-development-roadmap)
+- [Configuration](#-configuration)
+- [Usage Guide](#-usage-guide)
+- [Build and Packaging (Standalone Windows EXE)](#-build-and-packaging-standalone-windows-exe)
+- [Security Notes and Best Practices](#-security-notes-and-best-practices)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -37,337 +27,258 @@ A complete, enterprise-grade Python GUI desktop application for tracking, auditi
 
 ## 🔭 Project Overview
 
-In enterprise network management, identifying and shutting down inactive access ports is essential for network hygiene, security hardening (preventing unauthorized physical access), and capacity planning.
+Managing network infrastructure often involves repetitive manual CLI configuration across multiple switches, error-prone manual backups, and security risks when storing plain text passwords.
 
-However, **relying solely on instantaneous `down` or `notconnect` status is dangerous** — it often leads to disconnecting sleeping printers, conference room laptop drops, intermittently used workstations, or mission-critical links.
-
-**Cisco Historical Unused Port Scanner** solves this problem by:
-1. Performing concurrent batch scans across switches using Netmiko.
-2. Appending telemetry snapshots to persistent Excel storage (`port_history.xlsx`).
-3. Calculating multi-scan historical intelligence: `First Seen`, `Last Seen`, `Days Unused`, `Consecutive Unused Scans`, `Last Active Time`, and `Active Transitions`.
-4. Enforcing the **Reset Rule**: if a port becomes active, the consecutive scan counter is immediately reset to 0.
-5. Providing **Strict Multi-Criteria Exclusions**: Trunk, Uplink, EtherChannel, CDP/LLDP neighbors, and Protected ports are permanently excluded from shutdown proposals.
-6. Generating **Review-Only CLI Configuration Scripts** with accompanying rollback scripts (`no shutdown`) — **Zero automated device modifications**.
+**Cisco Layer 2 Switch Manager** provides network engineers and administrators with:
+1. An intuitive, modern graphical interface (Dark/Light mode) for all routine Layer 2 configuration tasks.
+2. A safe, structured workflow with **CLI Command Preview** before pushing commands to switches.
+3. High-performance concurrent execution across multiple switches using worker threads.
+4. Robust backup and safe restoration with **mandatory automatic pre-restore safety snapshots**.
+5. Local hardware-bound cryptographic protection for device credentials.
 
 ---
 
 ## ✨ Key Features
 
-- **Zero-Database Persistence (Excel `port_history.xlsx`)**:
-  - `Port_History`: Full raw telemetry snapshot appended after each scan.
-  - `Port_Summary`: Aggregated multi-scan intelligence and classification per port.
-  - `Protected_Ports`: Persistent list of ports protected by network engineers.
-  - `Scan_Log`: Audit trail of all scan execution metrics.
-  - **Automated Pre-Write Backups**: Timestamped archive saved to `backups/excel_history/` prior to each modification.
-  - **Atomic File Swapping**: Protects against file corruption during sudden system shutdowns or power loss.
-- **Deep Cisco IOS/IOS-XE Telemetry Collection**:
-  - Combines `show interfaces status`, `show interfaces description`, `show interfaces switchport`, `show etherchannel summary`, `show mac address-table`, `show cdp neighbors`, `show lldp neighbors`, and `show interfaces`.
-  - Converts human-readable counter timers (`never`, `14w2d`, `3d05h`, `00:15:30`) into exact inactive days.
-- **Smart State Machine & Reset Rule**:
-  - Distinguishes permanently unused ports from intermittently active ports.
-  - Automatically resets consecutive inactive counters upon reconnection.
-- **Configurable Thresholds**:
-  - Inactivity periods: `30 days`, `60 days (Recommended)`, `90 days`, `180 days`, or custom user-defined days.
-- **Visual Analytics & Canvas Trend Chart**:
-  - Hardware-accelerated CustomTkinter desktop interface (Dark/Light mode).
-  - Canvas-based historical trend visualizer plotting `UNUSED`, `ACTIVE`, and `MONITOR` port counts over time.
-  - Real-time KPI summary banner and per-switch unused rate metrics.
-- **Safe CLI Script & Rollback Generation**:
-  - Generates Cisco IOS `shutdown` scripts with audit description tags.
-  - Generates parallel `no shutdown` rollback scripts.
-  - Clipboard copy and `.cfg` file export.
-- **Multi-Format Reporting**:
-  - Formatted multi-sheet Excel reports with styled KPI dashboards.
-  - Standardized UTF-8 BOM CSV exports.
+### 1. SSH Connection & Session Management
+- Fast, reliable SSH sessions powered by **Netmiko** (`cisco_ios`, `cisco_xe`).
+- Enable mode support with separate privileged exec secret handling.
+- Built-in connection testing and timeout protection.
+
+### 2. Switch Inventory & Credential Protection
+- Comprehensive switch profile management: Hostname, IP address, Port, Group/Location, Device type, Username, Password, Enable Secret, and Notes.
+- **Encrypted Credential Storage**: Passwords and secrets are encrypted with symmetric **Fernet (AES-128-CBC + HMAC)** derived via **PBKDF2-HMAC-SHA256** tied to machine hardware identifiers.
+- Import/Export inventory from and to **Excel (`.xlsx`)**, **CSV** (auto-detected encoding and delimiters), and **JSON**.
+
+### 3. Full Layer 2 Feature Configuration
+Each configuration module includes a **CLI Preview** modal to review exact Cisco IOS commands prior to execution:
+- **VLAN Management**: Create VLANs (ID range 1–4094, name) and remove VLANs.
+- **Port Modes (Access & Trunk)**:
+  - *Access Mode*: Assign access VLAN and optional VoIP Voice VLAN.
+  - *Trunk Mode*: 802.1Q encapsulation, allowed VLAN filtering (`all`, lists, `add`, `remove`), and native VLAN configuration.
+- **Spanning Tree Protocol (STP), PortFast & BPDU Guard**:
+  - Global STP mode (`rapid-pvst`, `pvst`, `mst`).
+  - Per-VLAN STP priority (increments of 4096) or quick Root Primary / Secondary assignment.
+  - Global or interface-level PortFast and BPDU Guard configuration.
+- **EtherChannel (Link Aggregation)**:
+  - Member interface range assignment, Channel-Group ID (1–64).
+  - Protocols & modes: LACP (`active`, `passive`), PAgP (`desirable`, `auto`), or Static (`on`).
+- **Port Security**:
+  - Enable/disable port security on access ports.
+  - Maximum MAC address limits (`1–1024`).
+  - Violation actions: `shutdown`, `restrict`, or `protect`.
+  - Dynamic sticky MAC learning (`mac-address sticky`).
+- **DHCP Snooping & Dynamic ARP Inspection (DAI)**:
+  - Global and per-VLAN DHCP Snooping, Option 82 toggle.
+  - Uplink trusted interface designation (`ip dhcp snooping trust`).
+  - Per-VLAN Dynamic ARP Inspection (DAI) and DAI trust.
+- **Storm Control & Port Settings**:
+  - Broadcast and Multicast traffic suppression thresholds (0.0% – 100.0%).
+  - Actions on threshold exceed: `trap` or `shutdown`.
+  - Port description, speed, duplex, and administrative shutdown/no shutdown.
+- **MAC Address Table Management**:
+  - Configure static MAC address bindings.
+  - Clear dynamic MAC entries globally or filtered by VLAN.
+
+### 4. Backup & Safe Restore
+- **Backup**:
+  - Selectable scope: **Running-config**, **Startup-config**, or **Both**.
+  - Execute on a single switch or **concurrently across multiple switches**.
+  - Structured, timestamped archive directory: `backups/<Hostname>_<IP>/<Type>_<Timestamp>.cfg`.
+  - Built-in viewer and direct Windows Explorer folder opening.
+- **Restore**:
+  - Restore configuration from `.cfg` or `.txt` backup files into Running-config or Startup-config.
+  - **Mandatory Pre-Restore Safety Snapshot**: Automatically backs up the switch's current Running-config *before* applying any changes to ensure seamless rollback.
+
+### 5. Multi-Device Automation & Live Monitoring
+- Multi-threaded worker pool (`concurrent.futures.ThreadPoolExecutor`) ensuring the UI never freezes during long network calls.
+- **Real-Time Batch Progress Monitor**: Per-device status badges (Pending, Connecting, Running, Success, Failed) with elapsed runtime and error diagnostics.
+- **Live Event Log**: Color-coded, streaming execution log with log export capability.
+- **Quick CLI & Show Monitor**: Integrated dropdown for standard operational checks (`show vlan brief`, `show interfaces status`, `show mac address-table`, `show spanning-tree`, `show etherchannel summary`, etc.) plus custom command execution.
 
 ---
 
-## 🏛️ Architecture & Design
+## 🏗 Architecture
 
-```mermaid
-graph TD
-    UI[CustomTkinter GUI / HistoricalScannerView] --> SVC[HistoricalScannerService]
-    UI --> CH[HistoricalTrendChart - Canvas]
-    UI --> CFG[ConfigGenerator - Shutdown & Rollback]
-    UI --> RPT[ReportGenerator - Excel & CSV]
-    
-    SVC --> SSH[Netmiko SSH Session Pool]
-    SSH --> DEV[Cisco Switches: Catalyst / IOS / IOS-XE]
-    
-    DEV --> COL[CiscoDataCollector]
-    COL --> SNAP[Telemetry Snapshots]
-    
-    SNAP --> STO[(Excel Storage: port_history.xlsx)]
-    STO --> BAK[Pre-Write Auto Backup: backups/excel_history/]
-    
-    SNAP --> ANA[HistoricalAnalyzer]
-    STO --> ANA
-    ANA --> RISK[RiskProtectionEngine]
-    
-    RISK --> RES[Classified Port Summaries]
-    RES --> STO
-    RES --> UI
+The project follows a clean, modular architecture separating UI presentation, core networking/security infrastructure, and configuration business logic:
+
+```
+├── main.py                     # Application entry point
+├── build_exe.py                # Standalone PyInstaller build script
+├── requirements.txt            # Project dependencies
+├── core/                       # Core system services
+│   ├── crypto.py               # Hardware-tied PBKDF2/Fernet encryption for credentials
+│   ├── inventory.py            # Device inventory management, validation, import/export
+│   ├── ssh_client.py           # Netmiko SSH wrapper with timeout and error handling
+│   ├── task_runner.py          # Concurrent ThreadPoolExecutor for batch tasks
+│   └── logger.py               # Thread-safe logging engine with real-time GUI listeners
+├── services/                   # Business and Cisco IOS services
+│   ├── l2_config_builder.py    # Cisco IOS CLI command builder with parameter validation
+│   ├── backup_service.py       # Running and Startup config backup workflows
+│   ├── restore_service.py      # Restore workflow with mandatory pre-restore safety snapshot
+│   └── show_service.py         # Inspection and show command definitions
+├── gui/                        # CustomTkinter Graphical User Interface
+│   ├── app.py                  # Main window frame, sidebar navigation, view router
+│   ├── dialogs/                # Modal dialogs (Device add/edit, Confirmation modals)
+│   │   ├── device_dialog.py
+│   │   └── confirm_dialog.py
+│   └── views/                  # Primary functional views
+│       ├── devices_view.py     # Switch inventory table, CRUD, search, test SSH, import/export
+│       ├── l2_config_view.py   # Layer 2 feature tabs with CLI preview
+│       ├── backup_restore_view.py # Backup & restore control center and file archive
+│       ├── cli_monitor_view.py # CLI show commands and custom interactive console
+│       └── logs_view.py        # Real-time streaming logs and batch status monitor
+├── examples/                   # Sanitized example inventory templates
+│   ├── devices.example.json
+│   ├── devices.example.csv
+│   └── devices.example.xlsx
+└── tests/                      # Automated unit test suite
+    └── test_core_and_services.py
 ```
 
 ---
 
-## 💻 System Requirements
+## 📋 Requirements
 
-- **Operating System**: Windows 10, Windows 11, or Windows Server 2016+ (64-bit).
-- **Python (If running from source)**: Python 3.10, 3.11, 3.12, 3.13, or 3.14.
-- **Memory**: Minimum 512 MB RAM (1 GB recommended).
-- **Disk Space**: ~100 MB free space for persistent Excel storage and backups.
-- **Network Access**: SSH connectivity (Port 22) to target Cisco switch management IPs.
+- **Operating System**: Windows 10 / 11 (64-bit)
+- **Python**: 3.10, 3.11, 3.12, 3.13, or 3.14
+- **Network Access**: IP reachability and SSH (port 22 or custom port) enabled on target Cisco switches.
 
----
-
-## 📦 Installation
-
-### Option A: Running from Source
-
-1. **Clone the Repository**:
-   ```powershell
-   git clone https://github.com/tdt111199/Cisco-Switch-Management-Tool.git
-   cd Cisco-Switch-Management-Tool
-   ```
-
-2. **Create a Virtual Environment**:
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
-
-3. **Install Dependencies**:
-   ```powershell
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-
-4. **Initialize Local Configuration**:
-   ```powershell
-   Copy-Item .env.example .env
-   ```
+### Dependencies
+- `customtkinter` (Modern UI toolkit based on Tkinter)
+- `netmiko` (Multi-vendor network automation SSH library)
+- `cryptography` (Cryptographic recipes and primitives)
+- `openpyxl` (Native Excel `.xlsx` workbook parser and generator)
+- `pyinstaller` (Windows executable compiler)
 
 ---
 
-## 🚀 Quick Start
+## 💻 Installation
 
-### Launch the Dedicated Standalone Scanner
-```powershell
-python historical_scanner_main.py
+### 1. Clone the Repository
+```bash
+git clone https://github.com/tdt111199/Cisco-Switch-Management-Tool.git
+cd Cisco-Switch-Management-Tool
 ```
 
-### Launch the Unified Management Suite
-```powershell
+### 2. Set Up a Virtual Environment (Recommended)
+```bash
+python -m venv .venv
+# On Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# On Windows Command Prompt:
+.venv\Scripts\activate.bat
+```
+
+### 3. Install Required Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## ⚙️ Configuration
+
+### Inventory Setup
+You can populate your switch inventory directly through the GUI or by importing an inventory file:
+- **Import Templates**: Sample files are provided in the [`examples/`](examples/) directory:
+  - `examples/devices.example.json`
+  - `examples/devices.example.csv`
+  - `examples/devices.example.xlsx`
+- **Supported File Formats**:
+  - Excel (`.xlsx`, `.xls`)
+  - CSV (comma, semicolon, or tab-delimited with UTF-8 or Windows-1252/1258 encodings)
+  - JSON
+
+### Expected Column Headers
+The application supports both English and Vietnamese header naming:
+| Field | English Headers | Vietnamese Headers |
+| :--- | :--- | :--- |
+| **Hostname** | `name`, `hostname`, `device`, `switch` | `Tên Switch`, `Tên`, `Thiết bị` |
+| **IP Address** | `ip`, `ip address`, `host`, `address` | `Địa chỉ IP`, `Địa chỉ` |
+| **SSH Port** | `port`, `ssh port` | `Cổng`, `Cổng SSH` |
+| **Device Type** | `device_type`, `type` | `Loại thiết bị`, `Loại` |
+| **Group** | `group`, `location` | `Nhóm`, `Phòng ban`, `Khu vực` |
+| **Username** | `username`, `user` | `Tài khoản` |
+| **Password** | `password`, `pass`, `pwd` | `Mật khẩu` |
+| **Enable Secret** | `secret`, `enable secret`, `enable_secret` | `Enable Secret`, `Mật khẩu enable` |
+| **Notes** | `notes`, `note`, `description` | `Ghi chú`, `Mô tả` |
+
+---
+
+## 🚀 Usage Guide
+
+### Running the Application from Source
+```bash
 python main.py
 ```
 
----
+### Workflow Steps
+1. **Device Management (`Quản Lý Thiết Bị`)**:
+   - Add new switches or click **📥 Nhập DS** to load an Excel/CSV list.
+   - Click **⚡ Test SSH** to verify reachability and credentials.
+   - Select one, multiple, or all switches using checkboxes.
+2. **Layer 2 Configuration (`Cấu Hình Layer 2`)**:
+   - Navigate to the desired module (VLAN, Access/Trunk, STP, EtherChannel, Port Security, DHCP Snooping, Storm Control, or MAC Table).
+   - Enter your target parameters.
+   - Click **👁 Xem Trước Lệnh CLI** to verify generated commands.
+   - Click **🚀 Áp Dụng Lệnh Cấu Hình** to dispatch commands concurrently.
+3. **Backup & Restore (`Sao Lưu & Restore`)**:
+   - **Backup**: Choose Running, Startup, or Both, then click **🚀 Bắt Đầu Sao Lưu**.
+   - **Restore**: Select a target switch and a configuration file. The app automatically creates a pre-restore backup before applying the new configuration.
+4. **Monitoring & Logs (`Nhật Ký & Tiến Độ`)**:
+   - View per-switch status updates, execution duration, and full CLI output logs in real time.
 
-## 🔨 How to Build Standalone EXE
-
-The project includes an automated PyInstaller builder producing a self-contained `.exe` runnable on Windows without Python:
-
-### Method 1: One-Click Build Script (`build.bat`)
-Run the provided batch file in Command Prompt or PowerShell:
-```cmd
-build.bat
-```
-This script will automatically:
-1. Validate Python and dependencies.
-2. Run all 22 automated unit tests.
-3. Bundle the application into `dist/CiscoHistoricalUnusedPortScanner.exe`.
-4. Create the distribution ZIP archive in `release/`.
-
-### Method 2: Manual PyInstaller Command
-```powershell
-python build_historical_scanner_exe.py
-```
-
----
-
-## 📥 Download Pre-Built Release
-
-Pre-built standalone Windows binaries are hosted on GitHub Releases:
-
-🔗 **[Download Latest Release (v1.0.0)](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest)**
-
-- **ZIP Package**: `CiscoHistoricalUnusedPortScanner-v1.0.0-win64.zip`
-- **Standalone Binary**: `CiscoHistoricalUnusedPortScanner.exe` (SHA256 verified)
-
----
-
-## 📂 Repository Structure
-
-```
-Cisco-Historical-Unused-Port-Scanner/
-├── src/                               # Application Source Code
-│   ├── core/                          # Core foundational modules
-│   │   ├── crypto.py                  # Hardware-bound AES-128-CBC credential encryption
-│   │   ├── inventory.py               # Switch device profile manager & Excel/CSV importer
-│   │   ├── logger.py                  # Thread-safe logging engine
-│   │   ├── scanner_models.py          # Data models (PortSnapshot, PortSummaryRecord, etc.)
-│   │   ├── ssh_client.py              # Netmiko SSH client wrapper with timeout handling
-│   │   └── task_runner.py             # ThreadPoolExecutor multi-device worker pool
-│   ├── services/                      # Business logic & operational services
-│   │   ├── scanner/                   # Historical port scanner engine
-│   │   │   ├── cisco_collector.py     # Deep Cisco IOS/IOS-XE CLI collector & duration parser
-│   │   │   ├── config_generator.py    # Safe Shutdown & Rollback CLI script generator
-│   │   │   ├── excel_storage.py       # Zero-database multi-sheet Excel storage manager
-│   │   │   ├── historical_analyzer.py # Multi-scan historical analyzer & reset rule
-│   │   │   ├── historical_scanner_service.py # Batch coordinator
-│   │   │   ├── report_generator.py    # Executive Excel & CSV report exporter
-│   │   │   └── risk_protection_engine.py # Multi-criteria safety & classification rules
-│   │   ├── backup_service.py          # Running/startup configuration backup service
-│   │   ├── l2_config_builder.py       # Layer 2 configuration template builder
-│   │   ├── restore_service.py         # Configuration restore with pre-restore snapshots
-│   │   └── show_service.py            # CLI monitor show command service
-│   └── gui/                           # Presentation layer (CustomTkinter)
-│       ├── dialogs/                   # Modal dialog windows
-│       │   ├── config_preview_dialog.py # Safe CLI script preview modal
-│       │   ├── confirm_dialog.py      # Confirmation dialog
-│       │   ├── device_dialog.py       # Switch device editor dialog
-│       │   └── historical_port_detail_dialog.py # Port snapshot history viewer
-│       ├── views/                     # Main GUI views
-│       │   ├── backup_restore_view.py # Backup & restore management view
-│       │   ├── cli_monitor_view.py    # Live CLI command viewer
-│       │   ├── devices_view.py        # Device inventory management view
-│       │   ├── historical_scanner_view.py # Primary historical unused port scanner view
-│       │   ├── l2_config_view.py      # Layer 2 switch configuration view
-│       │   ├── logs_view.py           # Real-time event log view
-│       │   └── trend_chart_canvas.py  # Embedded Canvas historical trend chart widget
-│       └── app.py                     # Main tabbed application window
-├── assets/                            # Application icons, diagrams, and media
-├── config/                            # Environment settings and configuration loaders
-│   ├── __init__.py
-│   └── settings.py
-├── docs/                              # Technical documentation
-│   ├── ARCHITECTURE.md                # Detailed architectural specifications
-│   ├── HISTORICAL_SCAN_MECHANISM.md   # Excel storage schema & state machine rules
-│   ├── SAFETY_AND_RISK_ENGINE.md      # Multi-criteria safety matrix & rollback guides
-│   └── USAGE_GUIDE.md                 # End-user operational handbook
-├── examples/                          # Sample device import templates (.xlsx, .csv, .json)
-├── release/                           # Distribution packages (.zip and release notes)
-├── tests/                             # Automated test suite (22 unit tests)
-│   ├── test_core_and_services.py      # Tests for crypto, inventory, and L2 builder
-│   └── test_historical_scanner.py     # Tests for collector, storage, reset rule, and classifier
-├── .env.example                       # Environment configuration template
-├── .gitignore                         # Comprehensive Python & Windows gitignore
-├── build.bat                          # Automated build and packaging script
-├── build_historical_scanner_exe.py    # PyInstaller packaging script
-├── CHANGELOG.md                       # Release notes and version history
-├── LICENSE                            # MIT License
-├── main.py                            # Unified application launcher
-├── historical_scanner_main.py         # Dedicated historical scanner launcher
-└── requirements.txt                   # Python package dependencies
+### Running Unit Tests
+Execute the automated test suite with:
+```bash
+python -m unittest discover tests
 ```
 
 ---
 
-## 📊 Historical Scan Mechanism via Excel
+## 📦 Build and Packaging (Standalone Windows EXE)
 
-### Persistent Excel Database (`data/port_history.xlsx`)
-1. **`Port_History`**: Append-only snapshot ledger recording every interface attribute from each scan session.
-2. **`Port_Summary`**: Current consolidated state of every port with historical metrics:
-   - `First Seen`: Date when the port was first discovered.
-   - `Last Seen`: Date of the most recent scan.
-   - `Days Unused`: Total elapsed inactive days.
-   - `Consecutive Unused Scans`: Continuous scan sessions remaining inactive.
-   - `Last Active Time`: Date and time when the port was last detected in active state.
-   - `Active Transitions`: Number of times the port toggled from inactive to active.
-3. **`Protected_Ports`**: List of permanently protected ports excluded from shutdown proposals.
-4. **`Scan_Log`**: Audit record of execution runs (total switches, ports, classifications, duration).
+You can compile the entire application into a single standalone `.exe` file that runs on any 64-bit Windows PC without installing Python:
 
-### The Crucial Reset Rule
-```
-Inactive Scan (Down) ──> Increment Consecutive Scans & Days Unused
-Active Scan (Up)     ──> RESET Consecutive Scans = 0, Days Unused = 0, Update Last Active Time
+```bash
+python build_exe.py
 ```
 
----
-
-## 🛡️ Multi-Criteria Inactive & UNUSED Classification
-
-A port is marked **`UNUSED`** ONLY when meeting **ALL** of the following conditions:
-1. Port operational status is `notconnect` or `down`.
-2. Learned MAC address count is exactly **0**.
-3. Traffic counters indicate zero or insignificant packet exchange.
-4. Port is **NOT** configured as an 802.1Q trunk.
-5. Port is **NOT** connected to an uplink or infrastructure neighbor (no CDP/LLDP discovery).
-6. Port is **NOT** a Port-Channel or member of an EtherChannel bundle.
-7. Port description does **NOT** contain protected infrastructure keywords (`core`, `uplink`, `wan`, `ap`, `router`, `firewall`, `server`, etc.).
-8. Port is **NOT** present in the `Protected_Ports` sheet.
-9. Continuous inactive duration (`Days Unused`) is **greater than or equal to the configured threshold** (e.g., 30/60/90/180 days).
-
----
-
-## 🔒 Protected Ports Mechanism
-
-- Network engineers can select any port directly in the GUI table and click **"🛡️ Bảo Vệ Cổng Chọn"** (Protect Selected Ports).
-- The port is immediately assigned the `PROTECTED` status and recorded in the `Protected_Ports` Excel sheet.
-- Protected ports are **permanently excluded** from all shutdown script generators.
-- Protection status can be revoked at any time via **"🔓 Bỏ Bảo Vệ"** (Unprotect).
-
----
-
-## ⚙️ Safe Configuration & Rollback Generator
-
-> [!IMPORTANT]
-> **Strict Read-Only Guarantee**:
-> The tool will **NEVER** push configuration changes automatically to switches.
-
-- **Shutdown Scripts**: Generated only for ports classified as `UNUSED`. Automatically tags port descriptions for auditability:
-  ```cisco
-  interface GigabitEthernet0/12
-   description [UNUSED-SHUTDOWN-2026-09-09] Desk-B14
-   shutdown
+- The build script uses PyInstaller with `--onefile`, `--noconsole`, and bundles all required assets from `customtkinter`, `netmiko`, `cryptography`, and `openpyxl`.
+- The compiled executable will be located at:
   ```
-- **Rollback Scripts**: Simultaneously generated to restore original operation if required:
-  ```cisco
-  interface GigabitEthernet0/12
-   description Desk-B14
-   no shutdown
+  dist/CiscoL2Manager.exe
   ```
 
 ---
 
-## ⚠️ Safety Warnings & Operational Principles
+## 🔒 Security Notes and Best Practices
 
-1. **Verify Before Execution**: Always review generated configuration scripts prior to applying them in production environments.
-2. **Backups First**: While the application does not change switch configurations, verify that a valid switch running-config backup exists before applying manual changes.
-3. **Multi-Scan Recommendation**: Perform at least two separate scans over a representative time window before taking action on ports to avoid shutting down devices with scheduled power-down cycles.
-
----
-
-## 🗺️ Development Roadmap
-
-- [x] Multi-Switch SSH concurrent scanning (Netmiko)
-- [x] Zero-database persistent storage via Excel (`port_history.xlsx`)
-- [x] Automated pre-write backup and atomic replacement
-- [x] Multi-criteria historical classification engine (`ACTIVE`, `UNUSED`, `MONITOR`, `PROTECTED`, `TRUNK/UPLINK`, `PORT-CHANNEL`, `ERROR`)
-- [x] Canvas-based historical trend chart visualizer
-- [x] Safe shutdown and rollback configuration generator
-- [x] Formatted multi-sheet executive Excel and CSV report exports
-- [x] Standalone Windows `.exe` packaging
-- [ ] Cisco NX-OS (Nexus) collector module
-- [ ] Arista EOS and Juniper JunOS collector plugins
-- [ ] SNMP polling fallback for legacy devices without SSH access
-- [ ] Scheduled headless background cron scanner with email alerts
+1. **Credential Storage**:
+   - Device passwords and enable secrets are never stored in plain text.
+   - When saved locally in `data/devices.json`, secrets are encrypted using Fernet (AES-128-CBC + HMAC) with keys derived from the host system's hardware identifier via PBKDF2-HMAC-SHA256.
+2. **Repository Hygiene**:
+   - The `.gitignore` file strictly excludes runtime databases (`data/`), configuration files, credentials, network backups (`backups/`, `*.cfg`), and runtime logs (`*.log`).
+   - Never commit production switch configurations or real credentials to public or private version control.
+3. **Transport Security**:
+   - All network management is performed over encrypted SSH (v2) sessions. Insecure Telnet is intentionally omitted.
+4. **Safety Rollback Protocol**:
+   - Configuration restores always trigger an automatic retrieval and storage of the current running configuration before writing new commands.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
+Contributions are welcome! Please follow these steps:
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b feature/amazing-feature`.
-3. Commit your changes: `git commit -m "feat: add amazing feature"`.
-4. Run tests: `python -m unittest discover tests -v`.
-5. Push to your branch: `git push origin feature/amazing-feature`.
-6. Open a Pull Request.
+3. Commit your changes: `git commit -m "Add amazing feature"`.
+4. Push to the branch: `git push origin feature/amazing-feature`.
+5. Open a Pull Request.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
