@@ -1,0 +1,2 @@
+# Keeps the release directory structure in version control.
+# Release binaries (*.exe, *.zip) are published via GitHub Releases.

@@ -1,7 +1,13 @@
 """Unit tests for Core and Services modules."""
 
 import os
+import sys
 import unittest
+
+# Ensure src/ and root are in sys.path
+sys.path.insert(0, os.path.abspath("src"))
+sys.path.insert(0, os.path.abspath("."))
+
 from core.crypto import encrypt_secret, decrypt_secret
 from core.inventory import SwitchDevice, InventoryManager
 from services.l2_config_builder import L2ConfigBuilder

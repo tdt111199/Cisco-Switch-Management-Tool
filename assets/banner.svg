@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="240" rx="12" fill="url(#bgGrad)" stroke="#334155" stroke-width="2"/>
+  <circle cx="100" cy="120" r="55" fill="#1E3A8A" fill-opacity="0.4" stroke="#38BDF8" stroke-width="3"/>
+  <text x="100" y="132" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" text-anchor="middle" fill="#38BDF8">🔌</text>
+  <text x="180" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="bold" fill="url(#brandGrad)">Cisco Historical Unused Port Scanner</text>
+  <text x="180" y="135" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" fill="#94A3B8">Zero-Database Persistent Excel Telemetry • Multi-Scan Intelligence • Safe Shutdown &amp; Rollback Generator</text>
+  <rect x="180" y="160" width="95" height="26" rx="4" fill="#0284C7"/>
+  <text x="227" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">NETMIKO SSH</text>
+  <rect x="285" y="160" width="105" height="26" rx="4" fill="#059669"/>
+  <text x="337" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">EXCEL DATABASE</text>
+  <rect x="400" y="160" width="115" height="26" rx="4" fill="#6366F1"/>
+  <text x="457" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">RESET ENGINE</text>
+  <rect x="525" y="160" width="105" height="26" rx="4" fill="#DC2626"/>
+  <text x="577" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">SAFE PREVIEW</text>
+  <rect x="640" y="160" width="125" height="26" rx="4" fill="#475569"/>
+  <text x="702" y="177" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">STANDALONE EXE</text>
+</svg>
