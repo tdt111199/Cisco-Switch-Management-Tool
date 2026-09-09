@@ -96,5 +96,12 @@ Thumbs.db
 # Sub-repositories and local workspace folders
 Cisco-Switch-Port-Unused-Scanner/
 Cisco-Switch-Management-Tool/
-release/
+
+# Release directory (binaries are distributed via GitHub Releases)
+release/*.exe
+release/*.zip
+release/*.tar.gz
+!release/.gitkeep
+!release/README.md
+!release/README.txt
 

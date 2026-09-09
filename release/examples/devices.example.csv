@@ -1,0 +1,4 @@
+name,ip,port,device_type,group,notes,username,password,secret
+SW-ACCESS-01,192.168.10.2,22,cisco_ios,Building-A,Floor 1 Access Switch,netadmin,ExamplePassword123!,ExampleSecret123!
+SW-ACCESS-02,192.168.10.3,22,cisco_ios,Building-A,Floor 2 Access Switch,netadmin,ExamplePassword123!,ExampleSecret123!
+SW-DIST-01,192.168.10.1,22,cisco_ios,Core-Distribution,Distribution Switch,netadmin,ExamplePassword123!,ExampleSecret123!

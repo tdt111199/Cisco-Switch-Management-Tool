@@ -1,6 +1,8 @@
 # Cisco Layer 2 Switch Manager (GUI)
 
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![GitHub Release](https://img.shields.io/github/v/release/tdt111199/Cisco-Switch-Management-Tool?color=blue&label=release)](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest)
+[![Download Windows EXE](https://img.shields.io/badge/download-Windows%20x64%20EXE-brightgreen.svg)](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 [![Code Style](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
@@ -9,8 +11,26 @@ A complete, modern desktop GUI application built in Python (CustomTkinter) for c
 
 ---
 
+## 📥 Download & Quick Start (No Python Required)
+
+Pre-compiled standalone Windows executables are available on the [GitHub Releases](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest) page. You can run the application directly on Windows 10 / 11 (64-bit) without installing Python or dependencies:
+
+| Asset | Link | Description |
+| :--- | :--- | :--- |
+| **Complete ZIP Package** | [📦 CiscoL2Manager-v1.0.0-windows-x64.zip](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/download/v1.0.0/CiscoL2Manager-v1.0.0-windows-x64.zip) | Standalone EXE + sample inventory templates + guide |
+| **Standalone Executable** | [🚀 CiscoL2Manager.exe](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/download/v1.0.0/CiscoL2Manager.exe) | Single executable file (~25.0 MB) |
+| **All Releases** | [🌐 GitHub Releases Page](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest) | Full changelogs, assets, and SHA256 checksums |
+
+### Quick Start:
+1. Download `CiscoL2Manager-v1.0.0-windows-x64.zip` from the release link above.
+2. Unzip the archive to any folder and double-click `CiscoL2Manager.exe`.
+3. In the **Quản Lý Thiết Bị** tab, import your switch inventory from the provided sample templates in `examples/` (Excel, CSV, or JSON) or add switches manually.
+
+---
+
 ## 📑 Table of Contents
 
+- [Download & Quick Start](#-download--quick-start-no-python-required)
 - [Project Overview](#-project-overview)
 - [Key Features](#-key-features)
 - [Architecture](#-architecture)
@@ -239,14 +259,18 @@ python -m unittest discover tests
 
 ## 📦 Build and Packaging (Standalone Windows EXE)
 
-You can compile the entire application into a single standalone `.exe` file that runs on any 64-bit Windows PC without installing Python:
+### Pre-Built Binary
+For convenience, pre-built standalone binaries are published under [GitHub Releases](https://github.com/tdt111199/Cisco-Switch-Management-Tool/releases/latest) and tracked via the [`release/`](release/) directory in this repository.
+
+### Compiling from Source
+You can also compile the application into your own standalone `.exe` using PyInstaller:
 
 ```bash
 python build_exe.py
 ```
 
 - The build script uses PyInstaller with `--onefile`, `--noconsole`, and bundles all required assets from `customtkinter`, `netmiko`, `cryptography`, and `openpyxl`.
-- The compiled executable will be located at:
+- The compiled executable will be output to:
   ```
   dist/CiscoL2Manager.exe
   ```

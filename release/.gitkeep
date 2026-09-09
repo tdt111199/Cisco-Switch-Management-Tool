@@ -1,0 +1,2 @@
+﻿# Keeps release directory tracked in git repository.
+# Release binaries (*.exe, *.zip) are hosted on GitHub Releases.
