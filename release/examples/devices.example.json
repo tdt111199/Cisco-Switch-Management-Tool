@@ -1,0 +1,35 @@
+[
+  {
+    "name": "SW-ACCESS-01",
+    "ip": "192.168.10.2",
+    "port": 22,
+    "username": "netadmin",
+    "password": "ExamplePassword123!",
+    "secret": "ExampleSecret123!",
+    "device_type": "cisco_ios",
+    "group": "Building-A",
+    "notes": "Floor 1 Access Switch - Catalyst 2960"
+  },
+  {
+    "name": "SW-ACCESS-02",
+    "ip": "192.168.10.3",
+    "port": 22,
+    "username": "netadmin",
+    "password": "ExamplePassword123!",
+    "secret": "ExampleSecret123!",
+    "device_type": "cisco_ios",
+    "group": "Building-A",
+    "notes": "Floor 2 Access Switch - Catalyst 2960"
+  },
+  {
+    "name": "SW-DIST-01",
+    "ip": "192.168.10.1",
+    "port": 22,
+    "username": "netadmin",
+    "password": "ExamplePassword123!",
+    "secret": "ExampleSecret123!",
+    "device_type": "cisco_ios",
+    "group": "Core-Distribution",
+    "notes": "Distribution Switch - Catalyst 3560"
+  }
+]

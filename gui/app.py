@@ -10,7 +10,6 @@ from core.task_runner import BatchTaskRunner
 from gui.views.backup_restore_view import BackupRestoreView
 from gui.views.cli_monitor_view import CliMonitorView
 from gui.views.devices_view import DevicesView
-from gui.views.historical_scanner_view import HistoricalScannerView
 from gui.views.l2_config_view import L2ConfigView
 from gui.views.logs_view import LogsView
 from services.backup_service import BackupService
@@ -68,7 +67,6 @@ class CiscoL2ManagerApp(ctk.CTk):
         self.nav_buttons = {}
         nav_items = [
             ("devices", "📋 Quản Lý Thiết Bị"),
-            ("port_scanner", "🔍 Quét Lịch Sử Port"),
             ("l2_config", "⚙️ Cấu Hình Layer 2"),
             ("backup_restore", "💾 Sao Lưu & Restore"),
             ("cli_monitor", "💻 Tra Cứu CLI & Lệnh"),
@@ -122,10 +120,6 @@ class CiscoL2ManagerApp(ctk.CTk):
             inventory=self.inventory,
             on_selection_changed=self._on_devices_selection_changed
         )
-        self.view_port_scanner = HistoricalScannerView(
-            self.content_area,
-            inventory=self.inventory
-        )
         self.view_l2_config = L2ConfigView(
             self.content_area,
             get_selected_devices_cb=self.view_devices.get_selected_devices,
@@ -146,7 +140,6 @@ class CiscoL2ManagerApp(ctk.CTk):
 
         self.views = {
             "devices": self.view_devices,
-            "port_scanner": self.view_port_scanner,
             "l2_config": self.view_l2_config,
             "backup_restore": self.view_backup_restore,
             "cli_monitor": self.view_cli_monitor,
